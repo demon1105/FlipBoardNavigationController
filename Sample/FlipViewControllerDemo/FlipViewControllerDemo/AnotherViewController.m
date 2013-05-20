@@ -27,6 +27,19 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    
+    UIButton * btn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [btn addTarget:self
+            action:@selector(popController:)
+  forControlEvents:UIControlEventTouchUpInside];
+    btn.frame =CGRectMake(100, 100, 100, 100);
+    [self.view addSubview:btn];
+}
+
+-(void)popController:(id)sender
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"TTT"
+                                                        object:nil];
 }
 
 - (void)didReceiveMemoryWarning

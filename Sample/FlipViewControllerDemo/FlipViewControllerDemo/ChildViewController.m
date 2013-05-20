@@ -27,6 +27,21 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(test:)
+                                                 name:@"TTT"
+                                               object:nil];
+}
+
+-(void)test:(id)sender
+{
+    [self.flipboardNavigationController popViewController:self
+                                           withCompletion:^()
+     {
+         NSLog(@"finish");
+         [[NSNotificationCenter defaultCenter] removeObserver:nil];
+     }];
 }
 
 - (void)didReceiveMemoryWarning
