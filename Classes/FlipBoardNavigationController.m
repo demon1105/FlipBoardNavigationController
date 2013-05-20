@@ -152,8 +152,9 @@ typedef enum {
     [viewControler willMoveToParentViewController:nil];
     [viewControler removeFromParentViewController];
     [viewControler didMoveToParentViewController:nil];
-    [self.viewControllers removeObject:currentVC];
-    handler();    
+    [viewControler.view removeFromSuperview];
+    [self.viewControllers removeObject:viewControler];
+    handler();
 }
 
 - (void) popViewController {
