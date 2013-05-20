@@ -127,6 +127,35 @@ typedef enum {
     
 }
 
+- (void) popViewController:(UIViewController*)viewControler withCompletion:(FlipBoardNavigationControllerCompletionBlock)handler
+{
+    BOOL exist = NO;
+    for (UIViewController * subControler in  self.viewControllers)
+    {
+        if(subControler==viewControler)
+        {
+            exist = YES;
+            break;
+        }
+    }
+    if (self.viewControllers.count < 2||!exist) {
+        return;
+    }
+    
+    UIViewController *currentVC    = [self currentViewController];
+    if(currentVC==viewControler)
+    {
+        [self popViewControllerWithCompletion:handler];
+        return;
+    }
+    
+    [viewControler willMoveToParentViewController:nil];
+    [viewControler removeFromParentViewController];
+    [viewControler didMoveToParentViewController:nil];
+    [self.viewControllers removeObject:currentVC];
+    handler();    
+}
+
 - (void) popViewController {
     [self popViewControllerWithCompletion:^{}];
 }
