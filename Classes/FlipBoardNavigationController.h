@@ -11,9 +11,12 @@
 typedef void (^FlipBoardNavigationControllerCompletionBlock)(void);
 
 @interface FlipBoardNavigationController : UIViewController
-
+{
+    BOOL _rightPanViewProcessTouch;
+}
 @property(nonatomic, retain) NSMutableArray *viewControllers;
-
+@property (nonatomic,strong) UIViewController * rightPanController;
+-(void)addRightPanViewController:(UIViewController*)viewController;
 - (id) initWithRootViewController:(UIViewController*)rootViewController;
 
 - (void) pushViewController:(UIViewController *)viewController;

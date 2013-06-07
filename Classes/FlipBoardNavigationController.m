@@ -68,7 +68,11 @@ typedef enum {
     _blackMask.alpha = 0.0;
     [self.view insertSubview:_blackMask atIndex:0];
 }
-
+-(void)addRightPanViewController:(UIViewController*)viewController
+{
+    [self.view addSubview:viewController.view];
+    [self addPanGestureToView:viewController.view];
+}
 #pragma mark - PushViewController With Completion Block
 - (void) pushViewController:(UIViewController *)viewController completion:(FlipBoardNavigationControllerCompletionBlock)handler {
     _animationInProgress = YES;
@@ -221,6 +225,10 @@ typedef enum {
     UIViewController * vc =  [self.viewControllers lastObject];
     _panOrigin = vc.view.frame.origin;
     gestureRecognizer.enabled = YES;
+    if(self.rightPanController.view.frame.origin.x==0)
+        _rightPanViewProcessTouch = YES;
+    else
+        _rightPanViewProcessTouch = NO;
     return !_animationInProgress;
 }
 
@@ -228,6 +236,27 @@ typedef enum {
     return YES;
 }
 
+-(void)rightPanViewControllerAnimationEndWithDirection:(PanDirection)direction
+{
+    CGRect frame = CGRectZero;
+    switch (direction)
+    {
+        case PanDirectionLeft:
+            break;
+        case PanDirectionRight:
+            frame.origin = CGPointMake(320, 0);
+        default:
+            break;
+    }
+    frame.size = self.rightPanController.view.frame.size;
+    
+    [UIView animateWithDuration:.6
+                     animations:^()
+     {
+         self.rightPanController.view.frame =frame;
+         _animationInProgress = NO;
+     }];
+}
 
 - (void) gestureRecognizerDidPan:(UIPanGestureRecognizer*)panGesture {
     if(_animationInProgress) return;
@@ -235,9 +264,36 @@ typedef enum {
     CGFloat x = currentPoint.x + _panOrigin.x;
     CGFloat offset = 0;
     
+    PanDirection panDirection = PanDirectionNone;
+    CGPoint vel = [panGesture velocityInView:self.view];
+    if (vel.x > kOffsetTrigger) {
+        panDirection = PanDirectionRight;
+    } else {
+        panDirection = PanDirectionLeft;
+    }
+    
     UIViewController * vc ;
     vc = [self currentViewController];
+    
+    if((_rightPanViewProcessTouch||
+       (!_rightPanViewProcessTouch&&x<0))&&
+        vc==[self.viewControllers lastObject])
+    {
+        vc = self.rightPanController;
+        NSLog(@"come on right pan controller");
+        offset = CGRectGetWidth(vc.view.frame) - x;
+        vc.view.frame = [self getSlidingRectForOffset:offset];
+        
+        if (panGesture.state == UIGestureRecognizerStateEnded || panGesture.state == UIGestureRecognizerStateCancelled) {
+            [self rightPanViewControllerAnimationEndWithDirection:panDirection];
+            
+        }
+        return;
+    }
     offset = CGRectGetWidth(vc.view.frame) - x;
+    NSLog(@"panOrigin.x:%f",_panOrigin.x);
+    NSLog(@"x:%f",x);
+    NSLog(@"offset:%f",offset);
     vc.view.frame = [self getSlidingRectForOffset:offset];
     
     CGAffineTransform transf = CGAffineTransformIdentity;
@@ -248,14 +304,7 @@ typedef enum {
     
     _blackMask.alpha = newAlphaValue;
     
-    PanDirection panDirection = PanDirectionNone;
-    CGPoint vel = [panGesture velocityInView:self.view];
-    if (vel.x > kOffsetTrigger) {
-        panDirection = PanDirectionRight;
-    } else {
-        panDirection = PanDirectionLeft;
-    }
-    
+    NSLog(@"");
     if (panGesture.state == UIGestureRecognizerStateEnded || panGesture.state == UIGestureRecognizerStateCancelled) {
         [self completeSlidingAnimationWithDirection:panDirection];
     }
