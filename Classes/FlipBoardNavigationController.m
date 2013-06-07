@@ -13,6 +13,7 @@ static const CGFloat kAnimationDuration = 0.5f;
 static const CGFloat kAnimationDelay = 0.0f;
 static const CGFloat kOffsetTrigger = 30.0f;
 static const CGFloat kMaxBlackMaskAlpha = 0.8f;
+static const CGFloat kViewScaleSize = 0.95f;
 
 
 typedef enum {
@@ -84,7 +85,7 @@ typedef enum {
     [self.view addSubview:viewController.view];
     [UIView animateWithDuration:kAnimationDuration delay:kAnimationDelay options:0 animations:^{
         CGAffineTransform transf = CGAffineTransformIdentity;
-        [self currentViewController].view.transform = CGAffineTransformScale(transf, 0.9f, 0.9f);
+        [self currentViewController].view.transform = CGAffineTransformScale(transf, kViewScaleSize, kViewScaleSize);
         viewController.view.frame = self.view.bounds;
         _blackMask.alpha = kMaxBlackMaskAlpha;
     }   completion:^(BOOL finished) {
@@ -174,7 +175,7 @@ typedef enum {
     self.view.transform = self.view.transform;
     [UIView animateWithDuration:((vc.view.frame.origin.x *kAnimationDuration)/self.view.frame.size.width) delay:kAnimationDelay options:0 animations:^{
         CGAffineTransform transf = CGAffineTransformIdentity;
-        nvc.view.transform = CGAffineTransformScale(transf, 0.9f, 0.9f);
+        nvc.view.transform = CGAffineTransformScale(transf, kViewScaleSize, kViewScaleSize);
         vc.view.frame = rect;
         _blackMask.alpha = kMaxBlackMaskAlpha;
     }   completion:^(BOOL finished) {
@@ -238,6 +239,7 @@ typedef enum {
 
 -(void)rightPanViewControllerAnimationEndWithDirection:(PanDirection)direction
 {
+    _animationInProgress = YES;
     CGRect frame = CGRectZero;
     switch (direction)
     {
@@ -250,7 +252,7 @@ typedef enum {
     }
     frame.size = self.rightPanController.view.frame.size;
     
-    [UIView animateWithDuration:.6
+    [UIView animateWithDuration:((self.rightPanController.view.frame.origin.x *kAnimationDuration)/self.view.frame.size.width)
                      animations:^()
      {
          self.rightPanController.view.frame =frame;
@@ -275,9 +277,22 @@ typedef enum {
     UIViewController * vc ;
     vc = [self currentViewController];
     
-    if((_rightPanViewProcessTouch||
-       (!_rightPanViewProcessTouch&&x<0))&&
+    if(((!_rightPanViewProcessTouch)&&x<0)&&
         vc==[self.viewControllers lastObject])
+    {
+        NSLog(@"move In");
+        vc = self.rightPanController;
+        offset = -x;
+        NSLog(@"offset:%f",offset);
+        vc.view.frame = [self getSlidingRectForOffset:offset];
+        NSLog(@"%@",NSStringFromCGRect(vc.view.frame));
+        if (panGesture.state == UIGestureRecognizerStateEnded || panGesture.state == UIGestureRecognizerStateCancelled) {
+            [self rightPanViewControllerAnimationEndWithDirection:panDirection];
+            
+        }
+        return;
+    }
+    if(_rightPanViewProcessTouch)
     {
         vc = self.rightPanController;
         NSLog(@"come on right pan controller");
@@ -297,6 +312,7 @@ typedef enum {
     vc.view.frame = [self getSlidingRectForOffset:offset];
     
     CGAffineTransform transf = CGAffineTransformIdentity;
+    NSLog(@"offset:%f",offset);
     CGFloat newTransformValue =  1 - (offset/(self.view.frame.size.width/10))/100;
     CGFloat newAlphaValue = (offset/self.view.frame.size.width)* kMaxBlackMaskAlpha;
     
