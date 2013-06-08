@@ -7,12 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "UIView+Util.h"
 
 typedef void (^FlipBoardNavigationControllerCompletionBlock)(void);
 
 @interface FlipBoardNavigationController : UIViewController
 {
-    BOOL _rightPanViewProcessTouch;
+    CGPoint _rightPanViewCenterPoint;
+    BOOL _originTouchProcess;
+    BOOL _rightTouchProcess;
+    
+    UIView * _view_mask_fake;
 }
 @property(nonatomic, retain) NSMutableArray *viewControllers;
 @property (nonatomic,strong) UIViewController * rightPanController;

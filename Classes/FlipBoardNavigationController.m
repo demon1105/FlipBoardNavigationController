@@ -68,6 +68,7 @@ typedef enum {
     _blackMask.backgroundColor = [UIColor blackColor];
     _blackMask.alpha = 0.0;
     [self.view insertSubview:_blackMask atIndex:0];
+    
 }
 -(void)addRightPanViewController:(UIViewController*)viewController
 {
@@ -214,22 +215,19 @@ typedef enum {
     UIPanGestureRecognizer* panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                                                  action:@selector(gestureRecognizerDidPan:)];
     panGesture.cancelsTouchesInView = YES;
+    panGesture.maximumNumberOfTouches = 1;
     panGesture.delegate = self;
     [view addGestureRecognizer:panGesture];
     [_gestures addObject:panGesture];
-    panGesture = nil;
-}
 
+}
 
 #pragma mark - Gesture recognizer
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     UIViewController * vc =  [self.viewControllers lastObject];
     _panOrigin = vc.view.frame.origin;
     gestureRecognizer.enabled = YES;
-    if(self.rightPanController.view.frame.origin.x==0)
-        _rightPanViewProcessTouch = YES;
-    else
-        _rightPanViewProcessTouch = NO;
+    _rightPanViewCenterPoint = self.rightPanController.view.center;
     return !_animationInProgress;
 }
 
@@ -255,7 +253,20 @@ typedef enum {
     [UIView animateWithDuration:((self.rightPanController.view.frame.origin.x *kAnimationDuration)/self.view.frame.size.width)
                      animations:^()
      {
+         if(direction==PanDirectionRight)
+         {
+             [self.view exchangeSubview:[self currentViewController].view
+                            withSubview:_blackMask];
+         }
          self.rightPanController.view.frame =frame;
+         CGFloat newAlpha = direction==PanDirectionLeft?kMaxBlackMaskAlpha:0.0;
+         _blackMask.alpha = newAlpha;
+         
+         CGAffineTransform transf = CGAffineTransformIdentity;
+         CGFloat newTransformValue = direction==PanDirectionLeft?kViewScaleSize:1.0;
+         [self currentViewController].view.transform = CGAffineTransformScale(transf,newTransformValue,newTransformValue);
+         if(direction==PanDirectionRight)
+             [self currentViewController].view.userInteractionEnabled = YES;
          _animationInProgress = NO;
      }];
 }
@@ -274,37 +285,64 @@ typedef enum {
         panDirection = PanDirectionLeft;
     }
     
-    UIViewController * vc ;
-    vc = [self currentViewController];
+    BOOL moveLeft = vel.x<1;
+    UIViewController * vc= [self currentViewController];
     
-    if(((!_rightPanViewProcessTouch)&&x<0)&&
-        vc==[self.viewControllers lastObject])
-    {
-        NSLog(@"move In");
-        vc = self.rightPanController;
-        offset = -x;
-        NSLog(@"offset:%f",offset);
-        vc.view.frame = [self getSlidingRectForOffset:offset];
-        NSLog(@"%@",NSStringFromCGRect(vc.view.frame));
-        if (panGesture.state == UIGestureRecognizerStateEnded || panGesture.state == UIGestureRecognizerStateCancelled) {
-            [self rightPanViewControllerAnimationEndWithDirection:panDirection];
-            
-        }
+    if(self.rightPanController.view.frame.origin.x==0&&moveLeft)
         return;
-    }
-    if(_rightPanViewProcessTouch)
+    if(self.rightPanController&&//是否存在右侧的panViewController
+       ((moveLeft&&_rightPanController.view.center.x>160)||//向左滑入rightPanView
+        (!moveLeft&&_rightPanController.view.center.x<480))&&//向右推出rightPanView
+       !_originTouchProcess)//当前是否正在处理原有的touch事件
     {
+        NSLog(@"enter rightPan process");
+        if([self.view.subviews indexOfObject:self.currentViewController.view]>
+           [self.view.subviews indexOfObject:_blackMask])
+        {
+            [self.view exchangeSubview:[self currentViewController].view
+                           withSubview:_blackMask];
+        }
+        [self currentViewController].view.userInteractionEnabled = NO;
+        _rightTouchProcess = YES;
         vc = self.rightPanController;
-        NSLog(@"come on right pan controller");
-        offset = CGRectGetWidth(vc.view.frame) - x;
-        vc.view.frame = [self getSlidingRectForOffset:offset];
+        CGPoint center = CGPointMake(_rightPanViewCenterPoint.x+currentPoint.x, vc.view.center.y);
+        NSLog(@"center:%@",NSStringFromCGPoint(center));
         
-        if (panGesture.state == UIGestureRecognizerStateEnded || panGesture.state == UIGestureRecognizerStateCancelled) {
+        offset = CGRectGetWidth(self.rightPanController.view.frame) - x;
+        CGAffineTransform transf = CGAffineTransformIdentity;
+        CGFloat percentValue = abs(currentPoint.x)/320.0;
+        CGFloat newAlphaValue = percentValue* kMaxBlackMaskAlpha;
+        BOOL rightPanIsShow = _rightPanViewCenterPoint.x==160;
+        newAlphaValue = rightPanIsShow?1-newAlphaValue:newAlphaValue;
+        CGFloat newTransformValueFRTL =  1-(1-kViewScaleSize)*percentValue;
+        CGFloat newTransformValueFLTR =  kViewScaleSize+(1-kViewScaleSize)*percentValue;
+        
+        CGFloat newTransformValue = rightPanIsShow?newTransformValueFLTR:newTransformValueFRTL;
+        [self currentViewController].view.transform = CGAffineTransformScale(transf,newTransformValue,newTransformValue);
+        _blackMask.alpha = newAlphaValue;
+        
+        if(center.x<160)
+        {
+            vc.view.center = CGPointMake(160, vc.view.center.y);
+            [self currentViewController].view.userInteractionEnabled = YES;
+            return;
+        }
+        vc.view.center = center;
+        
+    }
+    if(_rightTouchProcess)
+    {
+        if (panGesture.state == UIGestureRecognizerStateEnded ||
+            panGesture.state == UIGestureRecognizerStateCancelled){
+            panDirection = moveLeft?PanDirectionLeft:PanDirectionRight;
+            _rightTouchProcess = NO;
             [self rightPanViewControllerAnimationEndWithDirection:panDirection];
             
         }
         return;
     }
+    NSLog(@"enter origin process");
+    _originTouchProcess = YES;
     offset = CGRectGetWidth(vc.view.frame) - x;
     NSLog(@"panOrigin.x:%f",_panOrigin.x);
     NSLog(@"x:%f",x);
@@ -320,8 +358,8 @@ typedef enum {
     
     _blackMask.alpha = newAlphaValue;
     
-    NSLog(@"");
     if (panGesture.state == UIGestureRecognizerStateEnded || panGesture.state == UIGestureRecognizerStateCancelled) {
+        _originTouchProcess = NO;
         [self completeSlidingAnimationWithDirection:panDirection];
     }
 }
