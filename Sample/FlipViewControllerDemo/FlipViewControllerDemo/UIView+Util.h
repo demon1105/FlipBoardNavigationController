@@ -9,5 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface UIView (Util)
-
+-(void)exchangeSubview:(UIView*)view1
+           withSubview:(UIView*)view2;
 @end
