@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2849886C176325DA0079F801 /* UIView+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = 2849886B176325DA0079F801 /* UIView+Util.m */; };
 		99B0A1061731743800253408 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B0A1051731743800253408 /* UIKit.framework */; };
 		99B0A1081731743800253408 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B0A1071731743800253408 /* Foundation.framework */; };
 		99B0A10A1731743800253408 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B0A1091731743800253408 /* CoreGraphics.framework */; };
@@ -43,6 +44,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2849886A176325DA0079F801 /* UIView+Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Util.h"; sourceTree = "<group>"; };
+		2849886B176325DA0079F801 /* UIView+Util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Util.m"; sourceTree = "<group>"; };
 		99B0A1021731743800253408 /* FlipViewControllerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlipViewControllerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		99B0A1051731743800253408 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		99B0A1071731743800253408 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -139,6 +142,8 @@
 				99B0A143173174FB00253408 /* Classes */,
 				99B0A1141731743800253408 /* AppDelegate.h */,
 				99B0A1151731743800253408 /* AppDelegate.m */,
+				2849886A176325DA0079F801 /* UIView+Util.h */,
+				2849886B176325DA0079F801 /* UIView+Util.m */,
 				99B0A11D1731743800253408 /* MainStoryboard_iPhone.storyboard */,
 				99B0A1201731743800253408 /* MainStoryboard_iPad.storyboard */,
 				99B0A1231731743800253408 /* ViewController.h */,
@@ -216,6 +221,7 @@
 				99B0A0FE1731743800253408 /* Sources */,
 				99B0A0FF1731743800253408 /* Frameworks */,
 				99B0A1001731743800253408 /* Resources */,
+				285BE8241761B85D00250AC9 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -300,6 +306,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		285BE8241761B85D00250AC9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"$CODESIGNING_FOLDER_PATH\" >/tmp/\"$USER.ident\" && echo \"$CODE_SIGN_IDENTITY\" >>/tmp/\"$USER.ident\" && exit;";
+		};
 		99B0A1291731743800253408 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -326,6 +345,7 @@
 				99B0A146173174FB00253408 /* FlipBoardNavigationController.m in Sources */,
 				99B0A15017317AF000253408 /* ChildViewController.m in Sources */,
 				99B0A15317317C7400253408 /* AnotherViewController.m in Sources */,
+				2849886C176325DA0079F801 /* UIView+Util.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
