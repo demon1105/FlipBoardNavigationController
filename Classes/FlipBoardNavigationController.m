@@ -295,7 +295,6 @@ typedef enum {
         (!moveLeft&&_rightPanController.view.center.x<480))&&//向右推出rightPanView
        !_originTouchProcess)//当前是否正在处理原有的touch事件
     {
-        NSLog(@"enter rightPan process");
         if([self.view.subviews indexOfObject:self.currentViewController.view]>
            [self.view.subviews indexOfObject:_blackMask])
         {
@@ -306,7 +305,6 @@ typedef enum {
         _rightTouchProcess = YES;
         vc = self.rightPanController;
         CGPoint center = CGPointMake(_rightPanViewCenterPoint.x+currentPoint.x, vc.view.center.y);
-        NSLog(@"center:%@",NSStringFromCGPoint(center));
         
         offset = CGRectGetWidth(self.rightPanController.view.frame) - x;
         CGAffineTransform transf = CGAffineTransformIdentity;
@@ -341,16 +339,11 @@ typedef enum {
         }
         return;
     }
-    NSLog(@"enter origin process");
     _originTouchProcess = YES;
     offset = CGRectGetWidth(vc.view.frame) - x;
-    NSLog(@"panOrigin.x:%f",_panOrigin.x);
-    NSLog(@"x:%f",x);
-    NSLog(@"offset:%f",offset);
     vc.view.frame = [self getSlidingRectForOffset:offset];
     
     CGAffineTransform transf = CGAffineTransformIdentity;
-    NSLog(@"offset:%f",offset);
     CGFloat newTransformValue =  1 - (offset/(self.view.frame.size.width/10))/100;
     CGFloat newAlphaValue = (offset/self.view.frame.size.width)* kMaxBlackMaskAlpha;
     
