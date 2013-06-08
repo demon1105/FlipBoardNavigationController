@@ -35,6 +35,9 @@
     UIViewController * controller = [[UIViewController alloc] init];
     controller.view.backgroundColor = [UIColor purpleColor];
     
+    
+    UITableView * tv = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)];
+    [controller.view addSubview:tv];
     UIViewController * panController = [[UIViewController alloc] init];
     panController.view.backgroundColor = [UIColor grayColor];
     
