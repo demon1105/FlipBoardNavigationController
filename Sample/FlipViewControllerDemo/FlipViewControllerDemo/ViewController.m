@@ -38,8 +38,12 @@
     
     UITableView * tv = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)];
     [controller.view addSubview:tv];
+    
     UIViewController * panController = [[UIViewController alloc] init];
     panController.view.backgroundColor = [UIColor grayColor];
+    
+    UITableView * tv1 = [[UITableView alloc] initWithFrame:CGRectMake(100, 0, 320, 400)];
+    [panController.view addSubview:tv1];
     
     self.flipboardNavigationController.rightPanController =panController;
     [self.flipboardNavigationController pushViewController:controller];
