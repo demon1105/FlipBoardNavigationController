@@ -288,7 +288,7 @@ typedef enum {
     BOOL moveLeft = vel.x<1;
     UIViewController * vc= [self currentViewController];
     
-    if(self.rightPanController.view.frame.origin.x==0&&moveLeft)
+    if(self.rightPanController&&self.rightPanController.view.frame.origin.x==0&&moveLeft)
         return;
     if(self.rightPanController&&//是否存在右侧的panViewController
        ((moveLeft&&_rightPanController.view.center.x>160)||//向左滑入rightPanView
