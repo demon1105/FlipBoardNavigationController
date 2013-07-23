@@ -125,6 +125,7 @@ typedef enum {
             [self.view bringSubviewToFront:[self previousViewController].view];
             [currentVC removeFromParentViewController];
             [currentVC didMoveToParentViewController:nil];
+            [currentVC.view removeFromSuperview];///修正view不能释放 jack 2013-7-2
             [self.viewControllers removeObject:currentVC];
             _animationInProgress = NO;
             handler();
